@@ -10,12 +10,18 @@
 
 ![Arduino Nano Pinout](Arduino-Nano-Pinout.png)
 
-## Pin-Belegung
+## Joystick Belegung (KY-023)
+| Joystick Pin | Arduino Pin | Funktion | Kabelfarbe |
+|-------------|-------------|----------|------------|
+| VCC | 5V | Stromversorgung | Rot |
+| GND | GND | Masse | Schwarz |
+| VRx | A1 | X-Achse (Lenken) | Braun |
+| VRy | A0 | Y-Achse (Fahren) | Grün |
+| SW  | D2 | Taster (Sofortstopp) | Grau |
+
+## L298N Belegung
 | Pin | Funktion | Kabelfarbe |
 |-----|----------|------------|
-| A0  | Joystick Y-Achse (Fahren) | |
-| A1  | Joystick X-Achse (Lenken) | |
-| D2  | Joystick Taster (Sofortstopp) | |
 | D3  | ENA – PWM Motor Links | Orange |
 | D5  | IN1 – Motor Links | Gelb |
 | D6  | IN2 – Motor Links | Grün |
