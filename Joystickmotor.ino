@@ -22,8 +22,8 @@
 //   OUT3/OUT4 -> Motor Rechts (+ und - tauschen wegen Einbaulage)
 
 // --- Pin-Definitionen ---
-const int JOY_X  = A0;
-const int JOY_Y  = A1;
+const int JOY_X  = A1;
+const int JOY_Y  = A0;
 const int JOY_SW = 2;
 
 // Motor Links (Motor A)
@@ -82,7 +82,7 @@ void loop() {
   if (digitalRead(JOY_SW) == LOW) {
     motorStop(ENA, IN1, IN2);
     motorStop(ENB, IN3, IN4);
-    Serial.println("STOP (Taste)");
+    // Serial.println("STOP (Taste)");  // deaktiviert für Serial Plotter
     delay(200);
     return;
   }
@@ -94,37 +94,40 @@ void loop() {
   int leftSpeed  = constrain(drive + steer, 0, 255);
   int rightSpeed = constrain(drive - steer, 0, 255);
 
+  String richtung;
+
   if (abs(y) > DEADZONE) {
     // Vorwärts oder Rückwärts mit Lenken
     if (y > 0) {
       motorForward(ENA,  IN1, IN2, leftSpeed);
       motorForward(ENB,  IN3, IN4, rightSpeed);
-      Serial.print("VORWÄRTS");
+      richtung = "VORWAERTS";
     } else {
       motorBackward(ENA, IN1, IN2, leftSpeed);
       motorBackward(ENB, IN3, IN4, rightSpeed);
-      Serial.print("RÜCKWÄRTS");
+      richtung = "RUECKWAERTS";
     }
   } else if (abs(x) > DEADZONE) {
     // Auf der Stelle drehen (nur X-Achse)
     if (x > 0) {
       motorForward(ENA,  IN1, IN2, steer);
       motorBackward(ENB, IN3, IN4, steer);
-      Serial.print("DREHEN RECHTS");
+      richtung = "DREHEN RECHTS";
     } else {
       motorBackward(ENA, IN1, IN2, steer);
       motorForward(ENB,  IN3, IN4, steer);
-      Serial.print("DREHEN LINKS");
+      richtung = "DREHEN LINKS";
     }
   } else {
     // Totzone - Stopp
     motorStop(ENA, IN1, IN2);
     motorStop(ENB, IN3, IN4);
-    Serial.print("STOP");
+    richtung = "STOP";
   }
 
-  Serial.print("  X="); Serial.print(x);
-  Serial.print("  Y="); Serial.println(y);
+  Serial.print("X:"); Serial.print(x);
+  Serial.print("  Y:"); Serial.print(y);
+  Serial.print("  "); Serial.println(richtung);
 
   delay(20);
 }

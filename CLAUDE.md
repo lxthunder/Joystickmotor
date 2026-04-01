@@ -13,8 +13,8 @@
 ## Pin-Belegung
 | Pin | Funktion | Kabelfarbe |
 |-----|----------|------------|
-| A0  | Joystick X-Achse (Lenken) | |
-| A1  | Joystick Y-Achse (Fahren) | |
+| A0  | Joystick Y-Achse (Fahren) | |
+| A1  | Joystick X-Achse (Lenken) | |
 | D2  | Joystick Taster (Sofortstopp) | |
 | D3  | ENA – PWM Motor Links | Orange |
 | D5  | IN1 – Motor Links | Gelb |
