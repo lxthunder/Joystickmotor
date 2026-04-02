@@ -39,9 +39,16 @@ const int IN4 = 10;
 // Totzone um die Joystick-Mitte
 const int DEADZONE = 50;
 
+// Dämpfung: 0.0 = sofort, 1.0 = nie – Werte zwischen 0.05 und 0.3 empfohlen
+const float ALPHA = 0.15;
+
 // Kalibrierungswerte (werden in setup() gemessen)
 int centerX = 512;
 int centerY = 512;
+
+// Geglättete Motorleistung
+float smoothLeft  = 0;
+float smoothRight = 0;
 
 void setup() {
   pinMode(IN1, OUTPUT);
@@ -91,39 +98,35 @@ void loop() {
   int drive = (abs(y) > DEADZONE) ? map(abs(y), DEADZONE, 512, 0, 255) : 0;
   int steer = (abs(x) > DEADZONE) ? map(abs(x), DEADZONE, 512, 0, 255) : 0;
 
-  int leftSpeed  = constrain(drive + steer, 0, 255);
-  int rightSpeed = constrain(drive - steer, 0, 255);
+  // Vorzeichenbehaftete Geschwindigkeit: positiv = vorwärts, negativ = rückwärts
+  int driveDir = (y > 0) ? 1 : -1;
+  int leftPower  = constrain(drive * driveDir + steer, -255, 255);
+  int rightPower = constrain(drive * driveDir - steer, -255, 255);
+
+  // Tiefpassfilter: neuen Zielwert schrittweise annähern
+  int targetLeft  = (abs(y) <= DEADZONE && abs(x) <= DEADZONE) ? 0 : leftPower;
+  int targetRight = (abs(y) <= DEADZONE && abs(x) <= DEADZONE) ? 0 : rightPower;
+  smoothLeft  += ALPHA * (targetLeft  - smoothLeft);
+  smoothRight += ALPHA * (targetRight - smoothRight);
+
+  int outLeft  = (int)smoothLeft;
+  int outRight = (int)smoothRight;
+
+  // Motorsteuerung anhand des Vorzeichens
+  if (outLeft > 0)       motorForward (ENA, IN1, IN2,  outLeft);
+  else if (outLeft < 0)  motorBackward(ENA, IN1, IN2, -outLeft);
+  else                   motorStop    (ENA, IN1, IN2);
+
+  if (outRight > 0)      motorForward (ENB, IN3, IN4,  outRight);
+  else if (outRight < 0) motorBackward(ENB, IN3, IN4, -outRight);
+  else                   motorStop    (ENB, IN3, IN4);
 
   String richtung;
-
-  if (abs(y) > DEADZONE) {
-    // Vorwärts oder Rückwärts mit Lenken
-    if (y > 0) {
-      motorForward(ENA,  IN1, IN2, leftSpeed);
-      motorForward(ENB,  IN3, IN4, rightSpeed);
-      richtung = "VORWAERTS";
-    } else {
-      motorBackward(ENA, IN1, IN2, leftSpeed);
-      motorBackward(ENB, IN3, IN4, rightSpeed);
-      richtung = "RUECKWAERTS";
-    }
-  } else if (abs(x) > DEADZONE) {
-    // Auf der Stelle drehen (nur X-Achse)
-    if (x > 0) {
-      motorForward(ENA,  IN1, IN2, steer);
-      motorBackward(ENB, IN3, IN4, steer);
-      richtung = "DREHEN RECHTS";
-    } else {
-      motorBackward(ENA, IN1, IN2, steer);
-      motorForward(ENB,  IN3, IN4, steer);
-      richtung = "DREHEN LINKS";
-    }
-  } else {
-    // Totzone - Stopp
-    motorStop(ENA, IN1, IN2);
-    motorStop(ENB, IN3, IN4);
-    richtung = "STOP";
-  }
+  if (abs(y) <= DEADZONE && abs(x) <= DEADZONE) richtung = "STOP";
+  else if (abs(y) <= DEADZONE)                  richtung = (x > 0) ? "DREHEN RECHTS" : "DREHEN LINKS";
+  else if (leftPower >= 0 && rightPower >= 0)   richtung = "VORWAERTS";
+  else if (leftPower <= 0 && rightPower <= 0)   richtung = "RUECKWAERTS";
+  else                                          richtung = "KURVE";
 
   Serial.print("X:"); Serial.print(x);
   Serial.print("  Y:"); Serial.print(y);
