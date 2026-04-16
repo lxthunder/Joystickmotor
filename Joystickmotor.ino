@@ -94,9 +94,9 @@ void loop() {
     return;
   }
 
-  // Geschwindigkeit und Lenkanteil berechnen
+  // Geschwindigkeit und Lenkanteil berechnen (steer vorzeichenbehaftet)
   int drive = (abs(y) > DEADZONE) ? map(abs(y), DEADZONE, 512, 0, 255) : 0;
-  int steer = (abs(x) > DEADZONE) ? map(abs(x), DEADZONE, 512, 0, 255) : 0;
+  int steer = (abs(x) > DEADZONE) ? map(abs(x), DEADZONE, 512, 0, 255) * (x > 0 ? 1 : -1) : 0;
 
   // Vorzeichenbehaftete Geschwindigkeit: positiv = vorwärts, negativ = rückwärts
   int driveDir = (y > 0) ? 1 : -1;
