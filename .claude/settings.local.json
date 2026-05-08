@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.espboards.dev)",
+      "WebFetch(domain:www.watelectronics.com)",
+      "WebFetch(domain:sensorkit.joy-it.net)",
+      "WebFetch(domain:manuals.plus)"
+    ]
+  }
+}
